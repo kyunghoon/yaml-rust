@@ -33,6 +33,7 @@ pub enum Yaml {
     /// YAML int is stored as i64.
     Integer(i64),
     /// YAML scalar.
+    MetaString(string::String),
     String(string::String),
     /// YAML bool, e.g. `true` or `false`.
     Boolean(bool),
@@ -108,7 +109,7 @@ impl MarkedEventReceiver for YamlLoader {
             },
             Event::Scalar(v, style, aid, tag) => {
                 let node = if style != TScalarStyle::Plain {
-                    Yaml::String(v)
+                    Yaml::String(format!("[a]{}", v))
                 } else if let Some(TokenType::Tag(ref handle, ref suffix)) = tag {
                     // XXX tag:yaml.org,2002:
                     if handle == "!!" {
@@ -138,14 +139,14 @@ impl MarkedEventReceiver for YamlLoader {
                                     _ => Yaml::BadValue,
                                 }
                             }
-                            _  => Yaml::String(v),
+                            _  => Yaml::String(format!("[b]{}", v)),
                         }
                     } else {
-                        Yaml::String(v)
+                        Yaml::String(format!("[c]{}", v))
                     }
                 } else {
                     // Datatype is not specified, or unrecognized
-                    Yaml::from_str(&v)
+                    Yaml::from_str(&format!("[d]{}", v))
                 };
 
                 self.insert_new_node((node, aid));
